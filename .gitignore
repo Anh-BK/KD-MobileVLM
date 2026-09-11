@@ -1,0 +1,13 @@
+test*
+
+kd_env/
+
+adapters/
+
+data/
+
+outputs-finetune/
+
+outputs-pretrain/
+
+wandb
