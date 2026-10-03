@@ -1,5 +1,5 @@
 #!/bin/bash
-export CUDA_VISIBLE_DEVICES=0,1,2
+export CUDA_VISIBLE_DEVICES=0
 WORK_DIR=$(cd "$(dirname "$0")";pwd)
 export PYTHONPATH=${WORK_DIR}
 export MASTER_PORT=$((RANDOM%1000+29600))
@@ -27,7 +27,9 @@ mkdir -p ${OUTPUT_DIR_FT}
 export PATH=/usr/local/cuda-11.8/bin${PATH:+:${PATH}}
 
 echo ">>> Start Fine-tuning (distil_type=${DISTIL_KL}, ratio_type=${DISTIL_Weighting}) ..."
-CUDA_LAUNCH_BLOCKING=1 TORCH_USE_CUDA_DSA=1 python3 mobilevlm/train/train.py \
+CUDA_LAUNCH_BLOCKING=1 \
+NCCL_DEBUG=INFO \
+deepspeed --num_gpus=1 mobilevlm/train/train.py \
     --distill ${DISTILL} \
     --distil_type ${DISTIL_KL} \
     --distil_ratio_type ${DISTIL_Weighting} \
@@ -38,7 +40,7 @@ CUDA_LAUNCH_BLOCKING=1 TORCH_USE_CUDA_DSA=1 python3 mobilevlm/train/train.py \
     --deepspeed scripts/deepspeed/zero2.json \
     --model_name_or_path ${OUTPUT_DIR_PT} \
     --version v1 \
-    --data_path data/finetune_data/MobileVLM_V2_FT_Mix2M.json \
+    --data_path data/finetune_data/BetaKD_MobileVLM_V2_FT_Mix2M.json \
     --image_folder data/finetune_data \
     --vision_tower openai/clip-vit-large-patch14-336 \
     --vision_tower_type clip \
@@ -66,7 +68,7 @@ CUDA_LAUNCH_BLOCKING=1 TORCH_USE_CUDA_DSA=1 python3 mobilevlm/train/train.py \
     --logging_steps 1 \
     --model_max_length 2048 \
     --gradient_checkpointing True \
-    --dataloader_num_workers 4 \
+    --dataloader_num_workers 1 \
     --lazy_preprocess True \
     --report_to none \
     --adapter_dir ${ADAPTER_DIR} \

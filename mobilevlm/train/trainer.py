@@ -498,7 +498,7 @@ class VLMTrainer(Trainer):
                         torch.save(self.weighting_strategy.state_dict(), os.path.join(adapter_dir, 'weighting_strategy.pt'))
                     print(f"Distillation adapters saved to: {adapter_dir}")
                 except Exception as e:
-                    print(f"Error saving distillation adapters: {e}")
+                    print(f"Error saving distillation adapters: {e}")        
 
     def _save_checkpoint(self, model, trial, metrics=None):
         """Save full checkpoint including DeepSpeed optimizer/scheduler state for perfect resume."""
@@ -506,13 +506,13 @@ class VLMTrainer(Trainer):
         gc.collect()
         torch.cuda.empty_cache()
         super()._save_checkpoint(model, trial, metrics)
+        self.on_train_end()
 
     def train(self, resume_from_checkpoint: Optional[str] = None, trial=None, ignore_keys_for_eval=None, **kwargs):
         """Run training and automatically save checkpoint on completion."""
         try:
             result = super().train(resume_from_checkpoint=resume_from_checkpoint, trial=trial, 
                                  ignore_keys_for_eval=ignore_keys_for_eval, **kwargs)
-            self.on_train_end()
             return result
         except Exception as e:
             print(f"Training exception: {e}")
