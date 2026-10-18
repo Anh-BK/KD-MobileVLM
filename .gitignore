@@ -10,4 +10,5 @@ outputs-finetune/
 
 outputs-pretrain/
 
-wandb
+wandb__pycache__/
+*.pyc

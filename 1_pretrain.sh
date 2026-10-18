@@ -1,5 +1,5 @@
 #!/bin/bash
-export CUDA_VISIBLE_DEVICES=0,1,2
+export CUDA_VISIBLE_DEVICES=0
 WORK_DIR=$(cd "$(dirname "$0")";pwd)
 export PYTHONPATH=${WORK_DIR}
 export MASTER_PORT=$((RANDOM%1000+29600))
@@ -12,7 +12,7 @@ LANGUAGE_MODEL="mtgv/MobileLLaMA-1.4B-Chat"
 VISION_MODEL="openai/clip-vit-large-patch14-336"
 
 # WandB: set USE_WANDB=True to enable, and set WANDB_PROJECT to your project name
-USE_WANDB="True"
+USE_WANDB="False"
 WANDB_PROJECT="betakd-pretrain-${DISTIL_KL}-${DISTIL_Weighting}"
 
 # Directory to save distillation adapters (proj_adapter.pt, attn_adapter.pt)
@@ -21,7 +21,10 @@ ADAPTER_DIR="adapters/pretrain"
 OUTPUT_DIR_PT=outputs-pretrain/${DISTIL_KL}-${DISTIL_Weighting}
 mkdir -p ${OUTPUT_DIR_PT}
 
-export PATH=/usr/local/cuda-11.8/bin${PATH:+:${PATH}}
+export HF_HOME="/cv_ws/hf_cache"
+export CUDA_HOME=/usr/local/cuda-11.8
+export PATH="$CUDA_HOME/bin${PATH:+:$PATH}"
+export LD_LIBRARY_PATH="$CUDA_HOME/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
 echo ">>> Start Pre-training: pretrain ..."
 # NCCL_DEBUG=INFO \
@@ -40,8 +43,8 @@ deepspeed --num_gpus=1 mobilevlm/train/train.py \
     --deepspeed scripts/deepspeed/zero2_3090.json \
     --model_name_or_path ${LANGUAGE_MODEL} \
     --version plain \
-    --data_path data/pretrain_data/share-captioner_coco_lcs_sam_1246k_1107.json \
-    --image_folder data/pretrain_data \
+    --data_path /cv_ws/data/pretrain_data/share-captioner_coco_lcs_sam_1246k_1107.json \
+    --image_folder /cv_ws/data/pretrain_data \
     --vision_tower ${VISION_MODEL} \
     --vision_tower_type clip \
     --mm_projector_type ldpnetv2 \

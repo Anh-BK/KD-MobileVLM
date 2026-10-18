@@ -24,7 +24,10 @@ WANDB_PROJECT="betakd-finetune-${DISTIL_KL}-${DISTIL_Weighting}"
 OUTPUT_DIR_FT=outputs-finetune/${DISTIL_KL}-${DISTIL_Weighting}
 mkdir -p ${OUTPUT_DIR_FT}
 
-export PATH=/usr/local/cuda-11.8/bin${PATH:+:${PATH}}
+export HF_HOME="/cv_ws/hf_cache"
+export CUDA_HOME=/usr/local/cuda-11.8
+export PATH="$CUDA_HOME/bin${PATH:+:$PATH}"
+export LD_LIBRARY_PATH="$CUDA_HOME/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
 echo ">>> Start Fine-tuning (distil_type=${DISTIL_KL}, ratio_type=${DISTIL_Weighting}) ..."
 CUDA_LAUNCH_BLOCKING=1 \

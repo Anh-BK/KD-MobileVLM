@@ -391,10 +391,10 @@ def preprocess_multimodal(
                 sentence['value'] = sentence['value'].strip()
                 if "mmtag" in conversation_lib.default_conversation.version:
                     sentence['value'] = sentence['value'].replace(DEFAULT_IMAGE_TOKEN, '<Image>' + DEFAULT_IMAGE_TOKEN + '</Image>')
-                replace_token = DEFAULT_IMAGE_TOKEN
-                if data_args.mm_use_im_start_end:
-                    replace_token = DEFAULT_IM_START_TOKEN + replace_token + DEFAULT_IM_END_TOKEN
-                sentence["value"] = sentence["value"].replace(DEFAULT_IMAGE_TOKEN, replace_token)
+            replace_token = DEFAULT_IMAGE_TOKEN
+            if data_args.mm_use_im_start_end:
+                replace_token = DEFAULT_IM_START_TOKEN + replace_token + DEFAULT_IM_END_TOKEN
+            sentence["value"] = sentence["value"].replace(DEFAULT_IMAGE_TOKEN, replace_token)
 
     return sources
 
@@ -636,9 +636,9 @@ def preprocess_plain(
     for source in sources:
         assert len(source) == 2
         assert DEFAULT_IMAGE_TOKEN in source[0]['value'], f"DEFAULT_IMAGE_TOKEN not found in: {source[0]['value']}"
-        # source[0]['value'] = DEFAULT_IMAGE_TOKEN
-        # conversation = source[0]['value'] + source[1]['value'] + conversation_lib.default_conversation.sep  # \n
-        conversation = source[1]['value'] + conversation_lib.default_conversation.sep  # \n
+        source[0]['value'] = DEFAULT_IMAGE_TOKEN
+        conversation = source[0]['value'] + source[1]['value'] + conversation_lib.default_conversation.sep  # \n
+        # conversation = source[1]['value'] + conversation_lib.default_conversation.sep  # \n
         conversations.append(conversation)
     # tokenize conversations
     input_ids = [tokenizer_image_token(prompt, tokenizer, return_tensors='pt') for prompt in conversations]
